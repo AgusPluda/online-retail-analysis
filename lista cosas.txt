@@ -1,0 +1,33 @@
+!! Cosas que graficar y analizar:
+
+stock_code + description: - LISTOOO
+    Top 10 articulos mas comprados - LISTO
+    Top 10 articulos mas caros por unidad - LISTO
+    Top 5 articulos mas baratos por unidad - LISTO
+    Relacion entre precio y cantidad comprada - LISTO
+
+invoice y customer_ID: - LISTOOO
+    Gasto Promedio por Factura - LISTO
+    Gasto Promedio por Factura (Boxplot) - LISTO
+    Top 10 Facturas mas caras - LISTO
+    Top 10 clientes que más compraron - LISTO
+
+invoice_datetime: - LISTOOO
+    Cantidad de Compras por año - LISTO
+    Cantidad de Compras mensuales - LISTO
+    Cantidad de Compras por hora del dia - LISTO
+
+country: - HACER
+    % de paises originarios del cliente que compran - HACER
+    % de paises originarios del cliente que compran (sin UK) - HACER
+
+graficos generales: - HACER
+    analisis de correlacion general - HACER
+
+!! Apartado Facturas canceladas:
+
+Porque cancelan la facturas? Por el valor de los articulos?
+
+    Si es asi, realizar una hipotesis de la probabildad que tiene una factura de cancelarse.
+
+REPO A: https://nbviewer.org/
