@@ -18,6 +18,8 @@ Se eligió este dataset por su volumen (más de un millón de filas) y por conte
 
 El proyecto recorre el proceso completo de análisis de datos: carga del dataset, exploración inicial, limpieza y formateo, EDA guiado por preguntas de negocio, hallazgos claves y conclusiones.
 
+Link Notebook: [nbviewer](https://nbviewer.org/github/AgusPluda/online-retail-analysis/blob/main/online_retail_analysis.ipynb)
+
 ---
 
 ## Objetivos
