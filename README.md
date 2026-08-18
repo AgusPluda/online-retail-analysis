@@ -9,7 +9,6 @@
 ![EDA](https://img.shields.io/badge/Project-Exploratory%20Data%20Analysis-success)
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 ![Codecademy](https://img.shields.io/badge/Codecademy-Portfolio-FFF0D9?logo=codecademy&logoColor=1F243A)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 ## Descripción del Proyecto
 
@@ -69,7 +68,7 @@ Fuente: [Online Retail II — Kaggle](https://www.kaggle.com/datasets/mashlyn/on
 Antes del EDA se realizó un proceso de limpieza y formateo justificado paso a paso:
 
 * **Datos nulos:** de 247.389 celdas vacías, se eliminaron las filas sin descripción de producto (4.382); los IDs de cliente faltantes (243.007) se conservaron ya que el análisis no se centra en clientes individuales.
-* **Duplicados:** se eliminaron 34.335 filas duplicadas.
+* **Duplicados:** se eliminaron 34.228 filas duplicadas.
 * **Registros no comerciales:** mediante una expresión regular sobre `StockCode`, se identificaron y separaron los códigos administrativos (ajustes, cargos bancarios, gastos de envío, registros de prueba, etc.) en un DataFrame `df_products`, distinto del análisis de artículos.
 * **Cantidades y precios inconsistentes:** se analizaron los valores de `Quantity` y `Price` menores o iguales a cero (cancelaciones, devoluciones y ajustes de inventario) y se generó `df_sales`, un DataFrame con únicamente transacciones de venta efectiva (cantidad y precio positivos).
 * **Formateo:** columnas renombradas a snake_case, `customer_id` convertido a string, `invoice_datetime` convertido a datetime, y creación de las columnas derivadas `invoice_date`, `invoice_time`, `canceled` y `total_price`.
@@ -82,60 +81,65 @@ El análisis se organizó en preguntas de negocio agrupadas por tema:
 
 **Artículos**
 * ¿Cuáles son los 10 artículos más comprados?
-* ¿Cuáles son los 10 artículos más caros por unidad?
-* ¿Cuáles son los 10 artículos más baratos por unidad?
+* ¿Cuáles son los artículos más caros y más baratos por unidad?
 * ¿Es más probable comprar más cantidad cuando el producto es más barato?
 
 **Facturas y Clientes**
 * ¿Cuánto gasta el cliente en promedio por factura?
 * ¿Cuáles son las facturas más caras?
 * ¿Qué clientes gastaron más?
+* ¿Qué tan concentrada está la facturación en unos pocos clientes?
 
 **Fechas y Horas**
 * ¿Existe un aumento en la cantidad de compras entre 2010 y 2011?
 * ¿En qué meses del año se compra más?
+* ¿Cómo evolucionó la facturación mes a mes?
 * ¿A qué hora del día se dan más compras?
 
 **Países**
-* ¿De dónde provienen los clientes?
-* ¿Qué porcentaje de clientes son extranjeros?
+* ¿De dónde provienen los clientes y cuánto pesan los mercados extranjeros?
 
 **Extras**
 * Matriz de correlación entre cantidad, precio unitario, precio total y estado de cancelación.
-* Hipótesis: ¿las facturas de mayor valor tienen mayor probabilidad de ser canceladas? Contrastada con boxplots, barplots con intervalo de confianza/bootstrap y una prueba de Mann–Whitney U.
+* Hipótesis: ¿las facturas de mayor valor tienen mayor probabilidad de ser canceladas? Contrastada con un boxplot en escala logarítmica, un barplot de medianas con intervalo bootstrap y una prueba de Mann–Whitney U.
+
+Cada gráfico responde una pregunta distinta: los que resultaron redundantes o poco informativos (un boxplot que repetía el histograma de gasto, un ranking de facturas por ID, una torta de dos porciones y un barplot de medias sobre una distribución de cola pesada) se eliminaron en lugar de conservarse por inercia. Todas las visualizaciones comparten un mismo sistema visual definido una sola vez en el notebook: azul para la serie principal, naranja como acento para destacar un elemento puntual y rojo reservado al estado "cancelada".
 
 ---
 
 ## Hallazgos Claves
 
-1. **Los regalos económicos para niños dominan las ventas.** Los 3 artículos más vendidos (aviones de cartón de la Segunda Guerra Mundial, porta velas colgantes con forma de corazón y un pack de manualidades de papel) son productos baratos, lo que confirma el perfil de "regalería" del negocio.
-2. **El artículo más caro comprado fue una bandera de coche de Inglaterra**, vendida por casi £1.200; el resto del top 10 se compone principalmente de muebles.
-3. **La relación entre precio unitario y cantidad comprada es prácticamente nula** (r = -0.029). El precio por sí solo no explica el volumen de compra.
+1. **Los regalos económicos dominan las ventas.** Los 3 artículos más vendidos (aviones de cartón de la Segunda Guerra Mundial, porta velas colgantes con forma de corazón y un pack de manualidades de papel) son productos baratos, lo que confirma el perfil de "regalería" del negocio.
+2. **El catálogo cubre un rango de precio enorme**, desde £0,03 en papelería hasta £1.157 en una bandera de coche de Inglaterra; los artículos caros son muebles y objetos voluminosos, de baja rotación.
+3. **Sí se compra más cantidad cuando el artículo es más barato, pero la relación no es lineal.** La correlación de Pearson es casi nula (r = -0,029) y llevaría a descartar la relación; la de Spearman, que mide relaciones monótonas, da ρ = -0,426. Por deciles de precio, la mediana de unidades cae de 12 a 2.
 4. **El gasto promedio por factura es de £497,16, pero la mediana es de solo £301,23**, lo que confirma la presencia de clientes mayoristas que elevan fuertemente el promedio.
 5. **Existe una factura extrema que distorsiona varios análisis:** la N° 581.483, por más de £160.000, correspondiente a casi 81.000 unidades de un solo artículo, lo que explica por qué ese producto aparece en el top 3 de más vendidos.
-6. **El cliente con la factura más cara también es uno de los que más gastó en total** (top 8 del ranking de clientes), indicando un comprador mayorista recurrente.
-7. **La cantidad de compras cayó un 7,15% de 2010 a 2011**, contradiciendo la expectativa de crecimiento del comercio online en ese período.
-8. **Noviembre es, por lejos, el mes con más compras**, previo a Navidad y Año Nuevo; marzo aparece como un segundo pico asociado a la Pascua de esos años.
-9. **Las facturas se concentran entre las 6 y las 20 horas, con pico al mediodía**, reflejo de que eran cargadas manualmente por empleados durante su horario laboral.
-10. **El negocio depende fuertemente del Reino Unido**: los clientes extranjeros (todos europeos) representan apenas un 9% de las ventas totales.
-11. **Existe una diferencia estadísticamente significativa** (prueba de Mann–Whitney U, p < 0.05) entre el valor absoluto de las facturas canceladas y no canceladas.
+6. **La facturación está muy concentrada:** 258 clientes (el 4,4% de los identificados) explican la mitad de los ingresos, y el 10% superior llega al 64%. El negocio se sostiene sobre un núcleo reducido de revendedores.
+7. **La cantidad de compras cayó un 3,71% de 2010 a 2011**, medido sobre una base comparable de enero a noviembre. La comparación de años completos sugería un 7,15%, pero ese número estaba distorsionado por un diciembre de 2011 truncado al día 9.
+8. **La facturación, en cambio, se sostuvo:** ambos años cierran en niveles similares, lo que indica que la caída en cantidad de facturas se compensó con un ticket promedio estable.
+9. **Noviembre es, por lejos, el mes con más compras**, previo a Navidad y Año Nuevo; marzo aparece como un segundo pico asociado a la Pascua de esos años.
+10. **Las facturas se concentran entre las 6 y las 20 horas, con pico al mediodía**, reflejo de que eran cargadas manualmente por empleados durante su horario laboral.
+11. **El negocio depende fuertemente del Reino Unido:** los clientes extranjeros son apenas el 9,0% del total, aunque aportan el 14,5% de la facturación, es decir que gastan más por cliente.
+12. **Las facturas canceladas son mucho más chicas, no más grandes.** Su mediana es de £17,00 frente a £302,24 de las no canceladas, y la prueba de Mann–Whitney U confirma que la diferencia es estadísticamente significativa (p < 0,05): las cancelaciones responden a devoluciones puntuales, no a arrepentimientos sobre compras grandes.
 
 ---
 
 ## Visualizaciones de Muestra
 
-### Top 10 Artículos más comprados
+### Top 10 artículos más comprados
 
 <p align="center">
-  <img src="images/barhplot_top_10_articulos_comprados.png" width="750">
+  <img src="images/01_top10_articulos_comprados.png" width="750">
 </p>
 
 ---
 
-### Relación entre Precio Unitario y Cantidad
+### Relación entre precio unitario y cantidad comprada
+
+Pearson daba por inexistente una relación que sí está: agrupando por deciles de precio, la mediana de unidades cae de 12 a 2.
 
 <p align="center">
-  <img src="images/scatter_precio_cantidad.png" width="750">
+  <img src="images/03_precio_vs_cantidad.png" width="750">
 </p>
 
 ---
@@ -143,31 +147,39 @@ El análisis se organizó en preguntas de negocio agrupadas por tema:
 ### Distribución del gasto por factura
 
 <p align="center">
-  <img src="images/histplot_gasto_promedio_factura.png" width="750">
+  <img src="images/04_dist_gasto_factura.png" width="750">
 </p>
 
 ---
 
-### Cantidad de Compras por Mes (2010-2011)
+### Concentración de la facturación por cliente
 
 <p align="center">
-  <img src="images/lineplot_cantidad_compras_mes.png" width="750">
+  <img src="images/06_pareto_clientes.png" width="750">
 </p>
 
 ---
 
-### Top 10 Países según Cantidad de compras
+### Compras acumuladas: 2010 vs 2011
 
 <p align="center">
-  <img src="images/barhplot_top_10_paises.png" width="750">
+  <img src="images/07_compras_acumuladas_2010_2011.png" width="750">
 </p>
 
 ---
 
-### Matriz de Correlación
+### Facturación mensual
 
 <p align="center">
-  <img src="images/correlation_heatmap.png" width="750">
+  <img src="images/09_facturacion_mensual.png" width="750">
+</p>
+
+---
+
+### Top 10 países de origen de los clientes
+
+<p align="center">
+  <img src="images/11_top10_paises.png" width="750">
 </p>
 
 ---
@@ -175,6 +187,8 @@ El análisis se organizó en preguntas de negocio agrupadas por tema:
 ## Conclusiones
 
 Este proyecto permitió recorrer el proceso completo de un análisis de datos real, desde la carga de un dataset con más de un millón de filas hasta la comunicación de hallazgos concretos. Trabajar con datos faltantes, duplicados, códigos no comerciales y valores inconsistentes en cantidad y precio implicó tomar decisiones de limpieza justificadas en cada paso, en lugar de aplicar reglas automáticas, resultando en un análisis que refleja la realidad de una tienda de regalería online con una fuerte componente mayorista.
+
+Dos hallazgos dejaron una lección metodológica más valiosa que los números en sí. El primero es la relación entre precio y cantidad: mirando solo la correlación de Pearson se habría concluido que no existe, cuando en realidad existe y es clara, pero monótona en vez de lineal. El segundo es la caída interanual: comparar 2010 contra 2011 sin notar que el dataset se corta el 9 de diciembre duplicaba el tamaño real de la caída. En ambos casos el resultado inicial no era falso por un error de código, sino por no haber cuestionado qué estaba midiendo la métrica elegida.
 
 El dataset también presenta limitaciones: no indica el motivo de cancelaciones o devoluciones, no incluye datos demográficos ni de segmentación de clientes más allá del país, abarca poco más de dos años (insuficiente para tendencias de largo plazo o estacionalidad robusta) y no contiene información de costos, por lo que no es posible calcular margen o rentabilidad, solo facturación.
 
@@ -191,23 +205,20 @@ online-retail-analysis/
 │   └── online_retail_II.csv
 │
 ├── images/
-│   ├── barhplot_top_10_articulos_comprados.png
-│   ├── barhplot_top_10_articulos_caros.png
-│   ├── barhplot_top_10_articulos_baratos.png
-│   ├── scatter_precio_cantidad.png
-│   ├── histplot_gasto_promedio_factura.png
-│   ├── boxplot_gasto_promedio_factura.png
-│   ├── barhplot_top_10_facturas_caras.png
-│   ├── barhplot_top_10_clientes.png
-│   ├── multiplot_cantidad_compras_por_año.png
-│   ├── lineplot_cantidad_compras_mes.png
-│   ├── histplot_compras_por_hora.png
-│   ├── barhplot_top_10_paises.png
-│   ├── pieplot_clientes_extranjeros.png
-│   ├── correlation_heatmap.png
-│   ├── boxplot_distribucion_factura_por_estado.png
-│   ├── barplot_error_gasto_promedio_factura.png
-│   └── barplot_gasto_factura_bootstrap.png
+│   ├── 01_top10_articulos_comprados.png
+│   ├── 02_articulos_caros_baratos.png
+│   ├── 03_precio_vs_cantidad.png
+│   ├── 04_dist_gasto_factura.png
+│   ├── 05_top10_clientes.png
+│   ├── 06_pareto_clientes.png
+│   ├── 07_compras_acumuladas_2010_2011.png
+│   ├── 08_compras_por_mes.png
+│   ├── 09_facturacion_mensual.png
+│   ├── 10_compras_por_hora.png
+│   ├── 11_top10_paises.png
+│   ├── 12_matriz_correlacion.png
+│   ├── 13_factura_por_estado.png
+│   └── 14_mediana_factura_bootstrap.png
 │
 ├── online_retail_analysis.ipynb
 ├── README.md
